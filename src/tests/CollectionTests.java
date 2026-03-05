@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Nested;
 
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
