@@ -35,36 +35,24 @@ public class CollectionTests {
                 .brand("Toyota")
                 .model("Camry")
                 .year(2020)
-                .engineVolume(2.5)
-                .color("Black")
-                .price(25000)
                 .build();
 
         car2 = new Car.Builder()
                 .brand("BMW")
                 .model("X5")
                 .year(2021)
-                .engineVolume(3.0)
-                .color("White")
-                .price(60000)
                 .build();
 
         car3 = new Car.Builder()
                 .brand("Honda")
                 .model("Accord")
                 .year(2019)
-                .engineVolume(2.0)
-                .color("Red")
-                .price(22000)
                 .build();
 
         car4 = new Car.Builder()
                 .brand("Toyota")
                 .model("Camry")
                 .year(2022)
-                .engineVolume(2.5)
-                .color("Blue")
-                .price(27000)
                 .build();
 
         listWithCars = new CustomCarList();
@@ -301,18 +289,18 @@ public class CollectionTests {
         @DisplayName("sort(comparator) сортирует по компаратору")
         void sortWithComparator() {
             CustomCarList unsorted = new CustomCarList();
-            unsorted.add(car2); // 60000
-            unsorted.add(car1); // 25000
-            unsorted.add(car3); // 22000
-            unsorted.add(car4); // 27000
+            unsorted.add(car2); // 2021
+            unsorted.add(car1); // 2020
+            unsorted.add(car3); // 2019
+            unsorted.add(car4); // 2022
 
-            // Сортировка по цене
-            unsorted.sort(Comparator.comparingInt(Car::getPrice));
+            // Сортировка по году
+            unsorted.sort(Comparator.comparingInt(Car::getYear));
 
-            assertEquals(car3, unsorted.get(0)); // 22000
-            assertEquals(car1, unsorted.get(1)); // 25000
-            assertEquals(car4, unsorted.get(2)); // 27000
-            assertEquals(car2, unsorted.get(3)); // 60000
+            assertEquals(car3, unsorted.get(0)); // 2019
+            assertEquals(car1, unsorted.get(1)); // 2020
+            assertEquals(car2, unsorted.get(2)); // 2021
+            assertEquals(car4, unsorted.get(3)); // 2022
         }
     }
 
@@ -337,11 +325,11 @@ public class CollectionTests {
                     .count();
             assertEquals(1, toyotaCount);
 
-            // Найти все автомобили дороже 30000
+            // Найти все автомобили выпустившиеся после 2020 года
             long expensiveCount = listWithCars.stream()
-                    .filter(car -> car.getPrice() > 30000)
+                    .filter(car -> car.getYear() > 2020)
                     .count();
-            assertEquals(1, expensiveCount); // только BMW
+            assertEquals(1, expensiveCount); // BMW и Camry
         }
 
         @Test
