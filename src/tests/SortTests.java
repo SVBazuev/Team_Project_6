@@ -29,9 +29,6 @@ public class SortTests {
                 .brand(brand)
                 .model("Model")
                 .year(year)
-                .engineVolume(2.0)
-                .color("Black")
-                .price(10000)
                 .build();
     }
 
