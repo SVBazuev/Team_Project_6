@@ -85,6 +85,7 @@ public class Main {
         System.out.println("5. Поиск автомобиля");
         System.out.println("6. Фильтрация через Stream API");
         System.out.println("7. Информация о коллекции");
+        System.out.println("8. Многопоточный подсчёт автомобилей по году");
         System.out.println("0. Выход");
         System.out.print("Выберите действие: ");
     }
