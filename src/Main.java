@@ -1,5 +1,12 @@
 import collection.CustomCarList;
 import model.Car;
+import context.SortContext;
+import strategy.BubbleSortStrategy;
+import strategy.EvenOddDecorator;
+import strategy.SelectionSortStrategy;
+import strategy.SortStrategy;
+import service.MultiThreadCounter;
+import service.CounterService;
 
 import java.util.Comparator;
 import java.util.Scanner;
@@ -7,8 +14,14 @@ import java.util.Scanner;
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static CustomCarList carList = new CustomCarList();
+    private static final CounterService counterService = new MultiThreadCounter(3); // 3 как в тесте
 
     public static void main(String[] args) {
+
+        new Main().run(); //Запуск главного цикла программы
+}
+
+    private void run() {    //Главный цыкл программы
         System.out.println("=== Программа сортировки автомобилей ===");
 
         // Добавим несколько тестовых автомобилей для демонстрации
@@ -47,6 +60,10 @@ public class Main {
                     // Информация о коллекции
                     showCollectionInfo();
                     break;
+                case 8:
+                    // Многопоточность
+                    countCarsByYearMultiThreaded();
+                    break;
                 case 0:
                     System.out.println("Программа завершена. До свидания!");
                     scanner.close();
@@ -56,6 +73,8 @@ public class Main {
             }
         }
     }
+
+
 
     private static void printMenu() {
         System.out.println("\n=== МЕНЮ ===");
@@ -71,12 +90,12 @@ public class Main {
     }
 
     private static void showAllCars() {
+        System.out.println("\n=== Список автомобилей ===");
         if (carList.isEmpty()) {
             System.out.println("Список автомобилей пуст!");
             return;
         }
 
-        System.out.println("\n=== Список автомобилей ===");
         for (int i = 0; i < carList.size(); i++) {
             System.out.printf("%d. %s%n", i + 1, carList.get(i));
         }
@@ -98,15 +117,6 @@ public class Main {
             System.out.print("Введите год выпуска: ");
             builder.year(readIntInput());
 
-            System.out.print("Введите объем двигателя (литры): ");
-            builder.engineVolume(readDoubleInput());
-
-            System.out.print("Введите цвет: ");
-            builder.color(scanner.nextLine());
-
-            System.out.print("Введите цену: ");
-            builder.price(readIntInput());
-
             Car newCar = builder.build();
             carList.add(newCar);
             System.out.println("Автомобиль успешно добавлен!");
@@ -117,6 +127,7 @@ public class Main {
     }
 
     private static void deleteCar() {
+        System.out.println("\n=== Удаление автомобиля ===");
         if (carList.isEmpty()) {
             System.out.println("Список автомобилей пуст!");
             return;
@@ -135,6 +146,7 @@ public class Main {
     }
 
     private static void sortCars() {
+        System.out.println("\n=== Сортировка автомобилей ===");
         if (carList.isEmpty()) {
             System.out.println("Список автомобилей пуст!");
             return;
@@ -143,35 +155,25 @@ public class Main {
         System.out.println("\n=== Сортировка ===");
         System.out.println("1. По бренду (естественный порядок)");
         System.out.println("2. По году выпуска");
-        System.out.println("3. По цене (возрастание)");
-        System.out.println("4. По цене (убывание)");
-        System.out.println("5. По объему двигателя");
+        System.out.println("3. По модели (естественный порядок)");
         System.out.println("0. Назад");
         System.out.print("Выберите тип сортировки: ");
 
         int choice = readIntInput();
 
+        Comparator<Car> comparator;
         switch (choice) {
             case 1:
-                // Естественный порядок (из compareTo в Car)
-                carList.sort();
-                System.out.println("Отсортировано по бренду, модели и году (естественный порядок)");
+                comparator = Comparator.comparing(Car::getBrand, String.CASE_INSENSITIVE_ORDER);
+                System.out.println("Отсортировано по бренду (естественный порядок)");
                 break;
             case 2:
-                carList.sort(Comparator.comparingInt(Car::getYear));
+                comparator = Comparator.comparingInt(Car::getYear);
                 System.out.println("Отсортировано по году выпуска");
                 break;
             case 3:
-                carList.sort(Comparator.comparingInt(Car::getPrice));
-                System.out.println("Отсортировано по цене (возрастание)");
-                break;
-            case 4:
-                carList.sort(Comparator.comparingInt(Car::getPrice).reversed());
-                System.out.println("Отсортировано по цене (убывание)");
-                break;
-            case 5:
-                carList.sort(Comparator.comparingDouble(Car::getEngineVolume));
-                System.out.println("Отсортировано по объему двигателя");
+                comparator = Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER);
+                System.out.println("Отсортировано по модели (естественный порядок)");
                 break;
             case 0:
                 return;
@@ -180,7 +182,60 @@ public class Main {
                 return;
         }
 
+        System.out.println("\n=== Выбор алгоритма ===");
+        System.out.println("1. SelectionSort");
+        System.out.println("2. BubbleSort");
+        System.out.println("0. Назад");
+        System.out.print("Выберите алгоритм сортировки: ");
+
+        int algChoice = readIntInput();
+
+        SortStrategy strategy;
+        switch (algChoice) {
+            case 1:
+                strategy = new SelectionSortStrategy(comparator);
+                System.out.println("Выбран алгоритм Selection");
+                break;
+            case 2:
+                strategy = new BubbleSortStrategy(comparator);
+                System.out.println("Выбран алгоритм Bubble");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Неверный выбор!");
+                return;
+        }
+
+
+        if (choice == 2) {  // EvenOddDecorator только для сортировки по году
+            System.out.println("\n=== Режим сортировки ===");
+            System.out.println("1. Обычная сортировка по году");
+            System.out.println("2. Сортировать только автомобили с четным годом");
+            System.out.println("0. Назад");
+            System.out.print("Выберите режим: ");
+
+            int modeChoice = readIntInput();
+
+            switch (modeChoice) {
+                case 1:
+                    break;
+                case 2:
+                    strategy = new EvenOddDecorator(strategy);
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Неверный выбор!");
+                    return;
+            }
+        }
+        SortContext context = new SortContext(carList);
+        context.setStrategy(strategy);
+        context.sort();
+
         showAllCars();
+        System.out.println("Сортировка выполнена");
     }
 
     private static void searchCar() {
@@ -214,10 +269,9 @@ public class Main {
         }
 
         System.out.println("\n=== Фильтрация через Stream API ===");
-        System.out.println("1. Автомобили дороже 30000");
-        System.out.println("2. Автомобили новее 2020 года");
-        System.out.println("3. Автомобили с объемом двигателя больше 2.5");
-        System.out.println("4. Только Toyota");
+        System.out.println("1. Показать автомобили указанного бренда");
+        System.out.println("2. Показать автомобили новее указанного года");
+        System.out.println("3. Показать автомобили старше указанного года");
         System.out.println("0. Назад");
         System.out.print("Выберите фильтр: ");
 
@@ -227,20 +281,22 @@ public class Main {
 
         switch (choice) {
             case 1:
-                filtered = carList.filter(car -> car.getPrice() > 30000);
-                System.out.println("Автомобили дороже 30000:");
+                System.out.print("Введите бренд: ");
+                String brand = readStringInput();
+                filtered = carList.filter(car -> car.getBrand().equalsIgnoreCase(brand));
+                System.out.println("Автомобили бренда " + brand + ":");
                 break;
             case 2:
-                filtered = carList.filter(car -> car.getYear() > 2020);
-                System.out.println("Автомобили новее 2020 года:");
+                System.out.print("Введите год: ");
+                int newerYear = readIntInput();
+                filtered = carList.filter(car -> car.getYear() > newerYear);
+                System.out.println("Автомобили новее " + newerYear + " года:");
                 break;
             case 3:
-                filtered = carList.filter(car -> car.getEngineVolume() > 2.5);
-                System.out.println("Автомобили с объемом > 2.5:");
-                break;
-            case 4:
-                filtered = carList.filter(car -> "Toyota".equals(car.getBrand()));
-                System.out.println("Автомобили Toyota:");
+                System.out.print("Введите год: ");
+                int olderYear = readIntInput();
+                filtered = carList.filter(car -> car.getYear() < olderYear);
+                System.out.println("Автомобили старше " + olderYear + " года:");
                 break;
             case 0:
                 return;
@@ -260,12 +316,6 @@ public class Main {
         System.out.println("Пустая? " + (carList.isEmpty() ? "Да" : "Нет"));
 
         if (!carList.isEmpty()) {
-            // Используем Stream API для подсчета статистики
-            double avgPrice = carList.stream()
-                    .mapToInt(Car::getPrice)
-                    .average()
-                    .orElse(0);
-
             int minYear = carList.stream()
                     .mapToInt(Car::getYear)
                     .min()
@@ -277,19 +327,32 @@ public class Main {
                     .orElse(0);
 
             long toyotaCount = carList.stream()
-                    .filter(car -> "Toyota".equals(car.getBrand()))
+                    .filter(car -> "Toyota".equalsIgnoreCase(car.getBrand()))
                     .count();
 
-            System.out.printf("Средняя цена: %.2f%n", avgPrice);
             System.out.println("Годы выпуска: от " + minYear + " до " + maxYear);
             System.out.println("Количество Toyota: " + toyotaCount);
 
-            // Демонстрация итератора
             System.out.println("\nПеребор с помощью итератора:");
             for (Car car : carList) {
                 System.out.println("  " + car.getBrand() + " " + car.getModel());
             }
         }
+    }
+
+    private static void countCarsByYearMultiThreaded() {
+        System.out.println("\n=== Многопоточный подсчёт автомобилей по году ===");
+
+        if (carList.isEmpty()) {
+            System.out.println("Список пуст.");
+            return;
+        }
+
+        System.out.println("Введите год для подсчёта: ");
+        int year = readIntInput();
+        int result = counterService.countCarsByYear(carList, year);
+
+        System.out.println("Количество автомобилей с годом " + year + ": " + result);
     }
 
     private static void initializeTestData() {
@@ -298,45 +361,30 @@ public class Main {
                     .brand("Toyota")
                     .model("Camry")
                     .year(2020)
-                    .engineVolume(2.5)
-                    .color("Black")
-                    .price(25000)
                     .build());
 
             carList.add(new Car.Builder()
                     .brand("BMW")
                     .model("X5")
                     .year(2021)
-                    .engineVolume(3.0)
-                    .color("White")
-                    .price(60000)
                     .build());
 
             carList.add(new Car.Builder()
                     .brand("Honda")
                     .model("Accord")
                     .year(2019)
-                    .engineVolume(2.0)
-                    .color("Red")
-                    .price(22000)
                     .build());
 
             carList.add(new Car.Builder()
                     .brand("Toyota")
                     .model("RAV4")
                     .year(2022)
-                    .engineVolume(2.5)
-                    .color("Blue")
-                    .price(32000)
                     .build());
 
             carList.add(new Car.Builder()
                     .brand("Mercedes")
                     .model("E-Class")
                     .year(2020)
-                    .engineVolume(2.0)
-                    .color("Silver")
-                    .price(45000)
                     .build());
 
             System.out.println("Добавлены тестовые данные (" + carList.size() + " автомобилей)");
@@ -345,6 +393,7 @@ public class Main {
         }
     }
 
+    // Проверки на пользовательскую ошибку ввода
     private static int readIntInput() {
         while (true) {
             try {
@@ -355,13 +404,15 @@ public class Main {
         }
     }
 
-    private static double readDoubleInput() {
+    private static String readStringInput() {
         while (true) {
-            try {
-                return Double.parseDouble(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.print("Ошибка! Введите число (например, 2.5): ");
+            String input = scanner.nextLine().trim();
+
+            if (!input.isEmpty()) {
+                return input;
             }
+
+            System.out.println("Ошибка! Cтрока не должна быть пустой.");
         }
     }
 }
