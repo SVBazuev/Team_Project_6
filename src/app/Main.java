@@ -409,6 +409,10 @@ public class Main {
         }
     }
 
+    private int readIntInput() {
+        return readIntInput(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
     private static String readStringInput() {
         while (true) {
             String input = scanner.nextLine().trim();
