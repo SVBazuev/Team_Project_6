@@ -26,22 +26,22 @@ Car car = new Car.Builder()
  Структура проекта
 
 src  
-├── collection  
+├── collection/  
 │   └── CustomCarList.java     
-├── context  
+├── context/  
 │   └── SortContext.java       
-├── model  
+├── model/  
 │   └── Car.java               
-├── strategy  
+├── strategy/  
 │   ├── SortStrategy.java      
 │   ├── BubbleSortStrategy.java  
 │   ├── SelectionSortStrategy.java  
 │   ├── SortDecorator.java     
 │   └── EvenOddDecorator.java   
-├── service  
+├── service/  
 │   ├── CounterService.java    
 │   └── MultiThreadCounter.java # Реализация многопоточности  
-├── tests  
+├── tests/  
 │   ├── BuilderTests.java  
 │   ├── CollectionTests.java  
 │   └── SortTests.java  
