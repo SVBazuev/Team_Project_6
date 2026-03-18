@@ -4,9 +4,9 @@
 /target/
 
 # IDE files
-/*.iml
-/.idea/
-/.vscode/
+*.iml
+.idea/
+.vscode/
 
 # OS files
 .DS_Store
