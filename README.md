@@ -25,28 +25,28 @@ Car car = new Car.Builder()
 
  Структура проекта
 
-src
-├── collection
-│   └── CustomCarList.java    
-├── context
+src  
+├── collection  
+│   └── CustomCarList.java     
+├── context  
 │   └── SortContext.java       
-├── model
+├── model  
 │   └── Car.java               
-├── strategy
+├── strategy  
 │   ├── SortStrategy.java      
-│   ├── BubbleSortStrategy.java
-│   ├── SelectionSortStrategy.java
+│   ├── BubbleSortStrategy.java  
+│   ├── SelectionSortStrategy.java  
 │   ├── SortDecorator.java     
-│   └── EvenOddDecorator.java  
-├── service
+│   └── EvenOddDecorator.java   
+├── service  
 │   ├── CounterService.java    
-│   └── MultiThreadCounter.java # Реализация многопоточности
-├── tests
-│   ├── BuilderTests.java
-│   ├── CollectionTests.java
-│   └── SortTests.java
+│   └── MultiThreadCounter.java # Реализация многопоточности  
+├── tests  
+│   ├── BuilderTests.java  
+│   ├── CollectionTests.java  
+│   └── SortTests.java  
 └── Main.java                  
-
+  
  Используемые паттерны
 1. Strategy (Стратегия)
 Позволяет динамически менять алгоритм сортировки (Bubble Sort или Selection Sort) во время выполнения программы.
